@@ -1,0 +1,155 @@
+<template>
+<div class="row">
+    <div class="col-sm-3">
+        <ChatLeftArea />
+    </div>
+    <div class="col-sm-9">
+        <router-link :to="'/chats/new/'" class="btn btn-primary">Create
+        </router-link>
+        <table class="table table-striped chat-table mt-2">
+            <thead>
+                <th>Name</th>
+                <th>Join</th>                
+            </thead>
+            <tbody>
+                <tr v-for="chat in chats" v-bind:key="chat.id">
+                    <td class="table-text">
+                        <p class="p_tbl_chat_name mb-0">
+                            <span v-if="chat.valid_join">
+                                <a href="" v-on:click="proc_next(chat.id);">{{ chat.name }}
+                                </a>                                                      
+                            </span>
+                            <span v-else>{{ chat.name }}
+                            </span>
+                        </p> 
+                        <span>
+                            ID : {{ chat.id }}
+                        </span>
+                        <span v-if="chat.user_id==user_id">
+                            <router-link :to="'/chats/edit/' + chat.id"
+                                class="btn btn-outline-primary btn-sm">Edit
+                            </router-link>                                
+                        </span>
+                    </td>
+                    <td class="table-text">
+                        <span v-if="chat.valid_join">
+                            <button v-on:click="delete_member(chat.id);" 
+                                class="btn btn-outline-danger btn-sm">退会
+                            </button>
+                        </span>
+                        <span v-else>
+                            <button v-on:click="add_member(chat.id);" 
+                                class="btn btn-outline-primary btn-sm">参加
+                            </button>
+                        </span>                   
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <hr />
+        <div class="page_info_wrap">
+            <ul>
+                <li>このページの機能は、オープンソースで公開しております。<br />
+                    <a  href=' '>
+                    </a><br />
+                    <br />
+                </li>
+                <li>関連ブログ:<br />
+                    <a  href=' '>
+                    </a><br />
+                </li>
+            </ul>
+        </div>        
+
+    </div>
+
+</div>
+</template>
+
+<!-- -->
+<style> 
+.search_key{
+    width: 200px; 
+    float: left;
+}
+.p_tbl_chat_name{ font-size: 1.4rem; }
+.chat-table td{ padding : 8px;}
+.page_info_wrap{
+    background: #EEE;
+    padding : 10px;
+    margin-top : 20px;
+}
+</style>
+<!-- -->
+<script>
+import {Mixin} from '../../mixin'
+import axios from 'axios'
+import ChatLeftArea from '../../components/Layouts/ChatLeftArea'
+
+//
+export default {
+    mixins:[Mixin],
+    components: { ChatLeftArea },
+    created () {
+        this.check_userState(this.sysConst.STORAGE_KEY_userData, this)
+        this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
+console.log( "uid=" + this.user_id )        
+        this.getTasks()
+    },
+    data () {
+        return {
+            user_id : 0,
+            chats: [],
+            database : null
+        }
+    },
+    methods: {
+        getTasks () {
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/get_chats'
+// console.log(url)
+            var item = {
+                'user_id': this.user_id,
+            }; 
+            axios.post(url, item).then(res =>  {
+                this.chats = res.data
+//console.log( this.chats )
+            })            
+        },
+        delete_member: function(chat_id){
+            var item = {
+                'user_id': this.user_id,
+                'chat_id': chat_id,
+            }; 
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/delete_member'
+            axios.post(url, item).then(res =>  {
+                this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats')
+                window.location.href = this.sysConst.HTTP_URL
+console.log(res.data)
+            })             
+
+        },
+        add_member: function(chat_id){
+            var item = {
+                'user_id': this.user_id,
+                'chat_id': chat_id,
+            }; 
+console.log(chat_id )
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/add_member'
+            axios.post(url, item).then(res =>  {
+                var data = res.data
+                if(data.return == 1){
+// console.log(data)
+                    this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats')
+                    window.location.href = this.sysConst.HTTP_URL
+                }
+            })  
+        },
+        proc_next: function(id){
+            this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats/show/' + id )
+            window.location.href = this.sysConst.HTTP_URL
+        },        
+    }
+}
+</script>

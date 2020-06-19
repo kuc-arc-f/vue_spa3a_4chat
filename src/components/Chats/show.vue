@@ -1,0 +1,260 @@
+<template>
+<div class="row">
+    <div class="col-sm-3">
+        <ChatLeftArea />
+    </div>
+    <div class="col-sm-9">
+        <div id="app">
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-sm-6">
+                    <h3>{{ chat.name }} </h3>
+                    <p class="mb-2">ID : {{ chat.id }} </p>
+                </div>
+            </div>
+            <hr class="mt-2 mb-2" />        
+            <!-- input_area -->
+            <div class="input_area_wrap" style="text-align: center;">
+                <div class="row">
+                    <div class="col-sm-6" style="text-align: right;">
+                        <!--  mb-0 -->
+                        <textarea v-model="message" class="form-control mt-0"
+                        style="padding :12px; 0px;"
+                        rows="3" cols="40" id="send_text"
+                        v-on:click="input_active();"
+                        placeholder="please Input" required="required"></textarea>                        
+                    </div>
+                    <div class="col-sm-6" style="text-align: left;">
+                        <button @click="addItem" id="send_button" class="btn btn-primary"
+                        data-toggle="tooltip" title="send post">Post
+                        </button>                        
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-2 mb-2">	
+            <!-- post-list -->
+            <ul class="ul_post_box" style="list-style: none;">
+            <li v-for="task in tasks" v-bind:key="task.id">
+                <div v-bind:class="'post_item'+' '+ task.item_bg"
+                    >
+                    <!-- v-on:click="open_modal(task.id)" -->
+                    <div class="col_name">
+                        <div class="post_user_wrap">
+                            <span style="font-size: 42px; float: left; padding: 0px;">
+                                <div v-if="task.is_other">
+                                    <i class="far fa-meh"></i>	
+                                </div>
+                                <div v-else style="color: #616161;  padding: 0px;">
+                                    <i class="fas fa-meh" style="margin: 0px;"></i>
+                                </div>
+                            </span>
+                            <div class="time_box pl-1" >
+                                <p class="mb-0">
+                                    {{ task.user_name }}:<br /> 
+                                    {{ task.date_str }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col_body">
+                        <p class="li_p_box mb-0" v-html="task.body">
+                        </p>							 
+                    </div>
+                </div>
+            </li>                
+            </ul>            
+        </div>
+        <!-- -->    
+        <div class="token_wrap" style="display: none;">
+            <p>
+                title:
+                <input type="text" value="title-123" id="send_title">
+            </p>
+            <hr />
+            <p>
+                IID_TOKEN:
+                <input type="text" value="YOUR-INCETANCE-ID-TOKEN" id="textInstanceIdToken"
+                style="width:100%;box-sizing:border-box;">
+            </p>
+        </div>        
+        <!-- -->
+        <div class="time_text_wrap" style="display: none;">
+            watch-test:
+            <input type="text" id="chat_time_text" value="" />
+            <br />
+            <br />
+            <br />
+        </div>        
+    </div>
+</div>
+</template>
+
+<!-- -->
+<style>
+.ul_post_box .bg_gray{	background: #EEE; }
+.modal_body_text{
+    border: 1px solid #000;
+    background: #EEE;
+    padding : 10px;
+}
+.post_item{
+    display:flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #000;
+    margin : 0px;
+}
+.post_item .col_name{
+    padding : 0px 8px;
+    width : 180px;
+}
+.li_p_box{
+    padding : 10px;
+}
+.time_box{
+    margin-left : 52px;
+    padding: 8px;
+    color: gray;
+    font-size: 0.875rem;
+}
+.hr_post_bottom{
+    height: 10px;
+    width : 100%;
+    background-color: #000;
+    border: none;	
+}
+/* input */
+#send_button{	margin : 30px 10px;	}
+</style>
+<!-- -->
+<script>
+import {Mixin} from '../../mixin'
+import axios from 'axios'
+import $ from 'jquery'
+import ChatLeftArea from '../../components/Layouts/ChatLeftArea'
+
+//init
+var TIME_TEXT_STR = "";
+//
+export default {
+    mixins:[Mixin],
+    components: { ChatLeftArea },
+    created() {
+        this.check_userState(this.sysConst.STORAGE_KEY_userData, this)
+        this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
+console.log( "uid=" + this.user_id ) 
+        this.fcm_init()               
+        this.get_posts( this.user_id )
+    },
+    data: function( ) {
+//        var itemDat = {title : '', content : ''}
+        return {
+            user_id : 0,
+            chat_id : this.$route.params.id,
+            chat : { 'name' : "", 'id' : 0 },
+            message : "",
+            posts : [],
+            tasks : [],
+//            item: itemDat,
+            editFlg: false,
+            updated: false,
+            messaging : null,
+            CHAT_MEMBER_ID : 0,
+            CHAT_MEMBERS : null,
+            timerObj : null,
+        }
+    },
+    methods: {
+        fcm_init: function(){
+            this.messaging = window.fcm_init_proc( 
+                this.sysConst.messagingSenderId , this.sysConst.FCM_PublicVapidKey 
+            );
+            var item = {
+                    'chat_id': this.chat_id,
+                    'user_id': this.user_id,
+                }; 
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/get_member_info'
+            var post_url = this.sysConst.URL_BASE +'/api/cross_chats/update_token'
+            axios.post(url , item ).then(res => {
+                var data = res.data;
+console.log(res.data.chat );
+                this.chat = res.data.chat; 
+                this.CHAT_MEMBER_ID = data.chat_member.id
+                this.CHAT_MEMBERS = data.chat_members;
+                window.fcm_get_token(this.messaging, this.CHAT_MEMBER_ID, post_url);
+                window.fcm_onMessage(this.messaging,  this.CHAT_MEMBER_ID )
+                window.set_time_text();
+                TIME_TEXT_STR = $("input#chat_time_text").val();
+            });
+        },
+        input_active() {
+            $("#send_text").css('height','200px');
+        },        
+        addItem() {
+            console.log(this.message );
+            if(this.message !=''){
+                this.update_post(this.message , this.chat_id , this.user_id);
+                $("#send_text").css('height','90px');
+            }else{
+                alert("text input, require..");
+            }
+            this.message='';
+        },   
+        update_post(body, CHAT_ID ,USER_ID){
+            var item = {
+                    'chat_id': CHAT_ID,
+                    'user_id': USER_ID,
+                    'body': body,
+                };
+                var url = this.sysConst.URL_BASE +'/api/cross_chats/update_post'
+                axios.post(url , item ).then(res => {
+console.log(res.data );
+                    window.set_time_text();
+                    window.fcm_send_member(
+                        this.CHAT_MEMBERS,
+                        this.chat_id,
+                        body, 
+                        this.sysConst.FCM_SERVER_KEY 
+                    );
+                });
+        },            
+        get_posts(USER_ID) {
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/get_post?cid='+ this.chat_id
+            axios.get(url ).then(res =>  {
+                var items = res.data;
+                var new_items = [];
+                items.forEach(function(item){
+                    if(item.user_id == USER_ID){
+                        item.is_other = 0;
+                        item.item_bg = 'bg_gray';
+                    }else{
+                        item.is_other = 1;
+                        item.item_bg = '';
+                    }
+                    new_items.push(item);
+                });
+//console.log( new_items  )
+                this.tasks  = new_items;
+                this.timer_start();
+            })            
+        },
+		count: function() {
+            var chk_time = $("input#chat_time_text").val();
+// console.log(TIME_TEXT_STR );
+//console.log( "chk=" + chk_time);
+            if(
+                TIME_TEXT_STR != chk_time
+                && chk_time != null
+            ){
+				console.log( "#change_time");
+				this.get_posts( this.user_id );
+				TIME_TEXT_STR = $("input#chat_time_text").val();
+			}
+        },
+		timer_start: function() {
+			var self = this;
+			this.timerObj = setInterval(function() {self.count()}, 3000)
+		},                
+    }
+}
+</script>
+
+

@@ -52,12 +52,14 @@
         <div class="page_info_wrap">
             <ul>
                 <li>このページの機能は、オープンソースで公開しております。<br />
-                    <a  href=' '>
+                    <a  href='https://github.com/kuc-arc-f/vue_spa3a_4chat'>
+                        https://github.com/kuc-arc-f/vue_spa3a_4chat
                     </a><br />
                     <br />
                 </li>
                 <li>関連ブログ:<br />
-                    <a  href=' '>
+                    <a  href='https://knaka0209.hatenablog.com/entry/lara58_31cross_chat'>
+                        https://knaka0209.hatenablog.com/entry/lara58_31cross_chat
                     </a><br />
                 </li>
             </ul>

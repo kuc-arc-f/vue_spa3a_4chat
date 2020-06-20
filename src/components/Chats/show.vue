@@ -35,8 +35,7 @@
             <ul class="ul_post_box" style="list-style: none;">
             <li v-for="task in tasks" v-bind:key="task.id">
                 <div v-bind:class="'post_item'+' '+ task.item_bg"
-                    >
-                    <!-- v-on:click="open_modal(task.id)" -->
+                    v-on:click="open_modal(task.id)">
                     <div class="col_name">
                         <div class="post_user_wrap">
                             <span style="font-size: 42px; float: left; padding: 0px;">
@@ -75,7 +74,37 @@
                 <input type="text" value="YOUR-INCETANCE-ID-TOKEN" id="textInstanceIdToken"
                 style="width:100%;box-sizing:border-box;">
             </p>
-        </div>        
+        </div>  
+        <!-- modal -->	
+        <div class="modal fade" id="modal1" tabindex="-1"
+            role="dialog" aria-labelledby="label1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="label1">
+                        {{ modal_item.user_name }} : {{ modal_item.date_str }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ID: {{modal_item.id}}
+                    <pre class="modal_body_text" v-html="modal_item.body_org"></pre>
+                    <div v-if="delete_ok">
+                        <hr />
+                        <span style="font-size: 24px; color: #f44336;" class="pl-2">
+                            <i v-on:click="open_delete(modal_item.id)" class="far fa-trash-alt"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                </div><!-- modal-content -->
+            </div><!-- modal-dialog -->
+        </div><!-- modal -->
+
         <!-- -->
         <div class="time_text_wrap" style="display: none;">
             watch-test:
@@ -95,6 +124,8 @@
     border: 1px solid #000;
     background: #EEE;
     padding : 10px;
+    font-family: BlinkMacSystemFont,"Segoe UI",Roboto;
+    font-size: 1.0rem;    
 }
 .post_item{
     display:flex;
@@ -145,7 +176,6 @@ console.log( "uid=" + this.user_id )
         this.get_posts( this.user_id )
     },
     data: function( ) {
-//        var itemDat = {title : '', content : ''}
         return {
             user_id : 0,
             chat_id : this.$route.params.id,
@@ -153,13 +183,14 @@ console.log( "uid=" + this.user_id )
             message : "",
             posts : [],
             tasks : [],
-//            item: itemDat,
+            modal_item : [],
             editFlg: false,
             updated: false,
             messaging : null,
             CHAT_MEMBER_ID : 0,
             CHAT_MEMBERS : null,
             timerObj : null,
+            delete_ok : 0,
         }
     },
     methods: {
@@ -238,7 +269,7 @@ console.log(res.data );
         },
 		count: function() {
             var chk_time = $("input#chat_time_text").val();
-// console.log(TIME_TEXT_STR );
+//console.log(TIME_TEXT_STR );
 //console.log( "chk=" + chk_time);
             if(
                 TIME_TEXT_STR != chk_time
@@ -252,7 +283,39 @@ console.log(res.data );
 		timer_start: function() {
 			var self = this;
 			this.timerObj = setInterval(function() {self.count()}, 3000)
-		},                
+        },
+		open_modal: function(id) {
+console.log("open_modal : " + id );
+			var item = this.get_modal_data(id, this.tasks );
+            this.modal_item = item;
+			this.delete_ok = 0;
+			if(item.user_id == this.user_id ){
+				this.delete_ok = 1;
+            }
+            window.chat_modal_open()
+        },
+		get_modal_data(id, items ) {
+			var ret = null;
+			items.forEach(function(item){
+				if(item.id == id){
+					ret = item;
+				}
+				//console.log(item.id);
+			});
+			return ret;
+        },
+		open_delete: function(id) {
+			var item = {
+                'id': id,
+            };
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/delete_post'
+            axios.post(url  , item ).then(res => {
+                console.log(res.data );
+//                window.set_time_text();
+                this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats/show/' + this.chat_id )
+                window.location.href = this.sysConst.HTTP_URL                
+            });			
+		},        
     }
 }
 </script>

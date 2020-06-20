@@ -12,7 +12,7 @@ function recv_pushMessage(title, body){
             if (permission === 'granted') {// 許可
                 var options ={
                     body: body,
-                    icon: 'https://knaka0209.net/pwa/images/icon2.png',					                    
+                    icon: 'https://code-kuc.netlify.app/pwa//images/icon_code.png',					                    
                     tag: ''
                 };
                 var n = new Notification(title,options);
@@ -175,4 +175,9 @@ function set_time_text(){
     var iso_date = date.toISOString();
     $("input#chat_time_text").val( iso_date );
 }
-
+/**********************************************
+ *
+ *********************************************/
+function chat_modal_open(){
+    $('#modal1').modal('show');
+}

@@ -9,12 +9,15 @@
 <script>
 import axios from 'axios'
 import {Mixin} from '../../mixin'
+import LibTest from '@/libs/LibTest';
+
 //
 export default {
     mixins:[Mixin],
     created() {
+        LibTest.func2()
 //console.log( this.sysConst.URL_BASE )
-        this.getTasks();
+//        this.getTasks();
 //            console.log( exStorage.load( sysConst.STORAGE_KEY_flash ) )
 //            userState.check()
 //            console.log(this.user)

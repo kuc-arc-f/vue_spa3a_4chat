@@ -4,7 +4,8 @@
         <ChatLeftArea />
     </div>
     <div class="col-sm-9">
-        <router-link :to="'/chats/new/'" class="btn btn-primary">Create
+        <FlashMessage></FlashMessage>
+        <router-link :to="'/chats/new/'" class="btn btn-primary mt-2">Create
         </router-link>
         <table class="table table-striped chat-table mt-2">
             <thead>
@@ -24,8 +25,14 @@
                         </p> 
                         <span>
                             ID : {{ chat.id }}
+                            &nbsp;&nbsp;
+                            <router-link :to="'/chats/info/' + chat.id"
+                                class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-info-circle"></i> Info
+                            </router-link>                                
                         </span>
                         <span v-if="chat.user_id==user_id">
+                            &nbsp;&nbsp;
                             <router-link :to="'/chats/edit/' + chat.id"
                                 class="btn btn-outline-primary btn-sm">Edit
                             </router-link>                                
@@ -89,11 +96,12 @@
 import {Mixin} from '../../mixin'
 import axios from 'axios'
 import ChatLeftArea from '../../components/Layouts/ChatLeftArea'
+import FlashMessage from '../../components/Layouts/FlashMessage'
 
 //
 export default {
     mixins:[Mixin],
-    components: { ChatLeftArea },
+    components: { ChatLeftArea , FlashMessage },
     created () {
         this.check_userState(this.sysConst.STORAGE_KEY_userData, this)
         this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
@@ -126,6 +134,9 @@ console.log( "uid=" + this.user_id )
             }; 
             var url = this.sysConst.URL_BASE +'/api/cross_chats/delete_member'
             axios.post(url, item).then(res =>  {
+                var arr=[ {message : 'チャット退会。完了しました。'} ]
+                this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )
+
                 this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats')
                 window.location.href = this.sysConst.HTTP_URL
 console.log(res.data)
@@ -143,6 +154,9 @@ console.log(chat_id )
                 var data = res.data
                 if(data.return == 1){
 // console.log(data)
+                    var arr=[ {message : 'チャット参加。完了しました。'} ]
+                    this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )
+
                     this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats')
                     window.location.href = this.sysConst.HTTP_URL
                 }

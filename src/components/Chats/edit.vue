@@ -73,6 +73,8 @@ console.log( "uid=" + this.user_id )
 // console.log(url)            
             axios.post(url , item).then(res => {
                 console.log(res.data);
+                var arr=[ {message : 'Success , save complete'} ]
+                this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )
                 this.$router.push('/chats')
             });            
         },
@@ -83,6 +85,9 @@ console.log( "uid=" + this.user_id )
             var url = this.sysConst.URL_BASE +'/api/cross_chats/delete_chat'
             axios.post(url , item).then(res => {
                 console.log(res.data);
+                var arr=[ {message : 'Success , delete complete'} ]
+                this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )
+
                 this.$router.push('/chats')
             });
             

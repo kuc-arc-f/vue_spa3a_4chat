@@ -4,12 +4,19 @@
         <ChatLeftArea />
     </div>
     <div class="col-sm-9">
+        <FlashMessage></FlashMessage>
         <div id="app">
             <div class="row" style="margin-top: 10px;">
                 <div class="col-sm-6">
                     <h3>{{ chat.name }} </h3>
                     <p class="mb-2">ID : {{ chat.id }} </p>
                 </div>
+                <div class="col-sm-3 pt-2" style="text-align: center; ">
+                    <a href="" v-on:click="move_show(chat_id);"
+                        class="btn btn-outline-primary">
+                        <i class="fas fa-redo-alt"></i> Load
+                    </a>							
+                </div>                
             </div>
             <hr class="mt-2 mb-2" />        
             <!-- input_area -->
@@ -161,13 +168,14 @@ import {Mixin} from '../../mixin'
 import axios from 'axios'
 import $ from 'jquery'
 import ChatLeftArea from '../../components/Layouts/ChatLeftArea'
+import FlashMessage from '../../components/Layouts/FlashMessage'
 
 //init
 var TIME_TEXT_STR = "";
 //
 export default {
     mixins:[Mixin],
-    components: { ChatLeftArea },
+    components: { ChatLeftArea ,FlashMessage },
     created() {
         this.check_userState(this.sysConst.STORAGE_KEY_userData, this)
         this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
@@ -206,7 +214,7 @@ console.log( "uid=" + this.user_id )
             var post_url = this.sysConst.URL_BASE +'/api/cross_chats/update_token'
             axios.post(url , item ).then(res => {
                 var data = res.data;
-console.log(res.data.chat );
+//console.log(res.data.chat );
                 this.chat = res.data.chat; 
                 this.CHAT_MEMBER_ID = data.chat_member.id
                 this.CHAT_MEMBERS = data.chat_members;
@@ -311,11 +319,16 @@ console.log("open_modal : " + id );
             var url = this.sysConst.URL_BASE +'/api/cross_chats/delete_post'
             axios.post(url  , item ).then(res => {
                 console.log(res.data );
-//                window.set_time_text();
+                var arr=[ {message : 'Success , delete complete'} ]
+                this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )
                 this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats/show/' + this.chat_id )
                 window.location.href = this.sysConst.HTTP_URL                
             });			
-		},        
+		}, 
+        move_show: function(id){
+            this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats/show/' + id )
+            window.location.href = this.sysConst.HTTP_URL                
+        },       
     }
 }
 </script>

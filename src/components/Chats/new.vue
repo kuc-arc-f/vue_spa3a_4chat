@@ -54,6 +54,8 @@ console.log( "uid=" + this.user_id )
             };   
             axios.post( url , task ).then(res => {
                 console.log(res.data );
+                var arr=[ {message : 'Success , save complete'} ]
+                this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )                
                 this.$router.push('/chats')
             });                     
         },

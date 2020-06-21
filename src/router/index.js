@@ -31,6 +31,7 @@ import chatsIndex from '../components/Chats/Index'
 import chatsShow from '../components/Chats/show'
 import chatsNew from '../components/Chats/new'
 import chatsEdit from '../components/Chats/edit'
+import chatsInfo from '../components/Chats/info_chat'
 
 //
 Vue.use(Router)
@@ -66,6 +67,7 @@ export default new Router({
 		{ path: '/chats/show/:id', component: chatsShow },
 		{ path: '/chats/new', component: chatsNew },
 		{ path: '/chats/edit/:id', component: chatsEdit },  
+		{ path: '/chats/info/:id', component: chatsInfo },
 
 	] 
 })

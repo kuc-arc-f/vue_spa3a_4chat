@@ -181,7 +181,6 @@ export default {
         this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
 console.log( "uid=" + this.user_id ) 
         this.fcm_init()               
-        this.get_posts( this.user_id )
     },
     data: function( ) {
         return {
@@ -214,7 +213,8 @@ console.log( "uid=" + this.user_id )
             var post_url = this.sysConst.URL_BASE +'/api/cross_chats/update_token'
             axios.post(url , item ).then(res => {
                 var data = res.data;
-//console.log(res.data.chat );
+//console.log(res.data.chat_posts );
+                this.tasks = this.convert_post_data( res.data.chat_posts )
                 this.chat = res.data.chat; 
                 this.CHAT_MEMBER_ID = data.chat_member.id
                 this.CHAT_MEMBERS = data.chat_members;
@@ -222,6 +222,7 @@ console.log( "uid=" + this.user_id )
                 window.fcm_onMessage(this.messaging,  this.CHAT_MEMBER_ID )
                 window.set_time_text();
                 TIME_TEXT_STR = $("input#chat_time_text").val();
+                this.timer_start();
             });
         },
         input_active() {
@@ -254,25 +255,30 @@ console.log(res.data );
                         this.sysConst.FCM_SERVER_KEY 
                     );
                 });
-        },            
-        get_posts(USER_ID) {
+        },         
+        convert_post_data: function(items){
+            var new_items = [];
+            var user_id = this.user_id
+            items.forEach(function(item){
+                if(item.user_id == user_id ){
+                    item.is_other = 0;
+                    item.item_bg = 'bg_gray';
+                }else{
+                    item.is_other = 1;
+                    item.item_bg = '';
+                }
+                new_items.push(item);
+            });  
+            return new_items          
+        },   
+        get_posts() {
             var url = this.sysConst.URL_BASE +'/api/cross_chats/get_post?cid='+ this.chat_id
             axios.get(url ).then(res =>  {
                 var items = res.data;
-                var new_items = [];
-                items.forEach(function(item){
-                    if(item.user_id == USER_ID){
-                        item.is_other = 0;
-                        item.item_bg = 'bg_gray';
-                    }else{
-                        item.is_other = 1;
-                        item.item_bg = '';
-                    }
-                    new_items.push(item);
-                });
-//console.log( new_items  )
+//console.log( items  )
+                var new_items = this.convert_post_data( items )
                 this.tasks  = new_items;
-                this.timer_start();
+//                this.timer_start();
             })            
         },
 		count: function() {
@@ -284,12 +290,13 @@ console.log(res.data );
                 && chk_time != null
             ){
 				console.log( "#change_time");
-				this.get_posts( this.user_id );
+				this.get_posts();
 				TIME_TEXT_STR = $("input#chat_time_text").val();
 			}
         },
 		timer_start: function() {
-			var self = this;
+            var self = this;
+            this.timerObj = null;
 			this.timerObj = setInterval(function() {self.count()}, 3000)
         },
 		open_modal: function(id) {

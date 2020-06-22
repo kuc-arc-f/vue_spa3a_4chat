@@ -16,6 +16,15 @@
                         class="btn btn-outline-primary">
                         <i class="fas fa-redo-alt"></i> Load
                     </a>							
+                </div>
+                <div class="col-sm-3 pt-2">
+                    <a v-bind:href="url_csv" class="btn btn-outline-primary btn-sm">
+                     CSV出力
+                    </a>
+                    &nbsp;&nbsp;
+                    <button v-on:click="delete_member(chat.id);" 
+                        class="btn btn-outline-danger btn-sm">退会
+                    </button>                    
                 </div>                
             </div>
             <hr class="mt-2 mb-2" />        
@@ -179,7 +188,8 @@ export default {
     created() {
         this.check_userState(this.sysConst.STORAGE_KEY_userData, this)
         this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
-console.log( "uid=" + this.user_id ) 
+        this.url_csv = this.sysConst.URL_BASE + "/api/cross_chats/csv_get?chat_id=" + this.chat_id;
+//console.log( "url_csv=" + this.url_csv ) 
         this.fcm_init()               
     },
     data: function( ) {
@@ -198,6 +208,7 @@ console.log( "uid=" + this.user_id )
             CHAT_MEMBERS : null,
             timerObj : null,
             delete_ok : 0,
+            url_csv : '',
         }
     },
     methods: {
@@ -332,7 +343,23 @@ console.log("open_modal : " + id );
                 this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats/show/' + this.chat_id )
                 window.location.href = this.sysConst.HTTP_URL                
             });			
-		}, 
+        }, 
+        delete_member: function(chat_id){
+            console.log( chat_id )
+            var item = {
+                'user_id': this.user_id,
+                'chat_id': chat_id,
+            }; 
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/delete_member'
+            axios.post(url, item).then(res =>  {
+                var arr=[ {message : 'チャット退会。完了しました。'} ]
+                this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )
+
+                this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats')
+                window.location.href = this.sysConst.HTTP_URL
+console.log(res.data)
+            }) 
+        },
         move_show: function(id){
             this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats/show/' + id )
             window.location.href = this.sysConst.HTTP_URL                

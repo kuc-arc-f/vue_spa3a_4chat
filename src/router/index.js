@@ -10,6 +10,7 @@ import tasksTest from '../components/Tasks/test'
 import tasksShow from '../components/Tasks/show'
 import tasksEdit from '../components/Tasks/edit'
 import tasksTestChild from '../components/Tasks/test_child'
+import tasksTestVuex from '../components/Tasks/test_vuex'
 
 import usersLogin from '../components/Users/Login'
 import usersValidGo from '../components/Users/valid_go'
@@ -49,6 +50,7 @@ export default new Router({
 		{ path: '/tasks/show/:id', component: tasksShow },
 		{ path: '/tasks/test', component: tasksTest },
 		{ path: '/tasks/test_child', component: tasksTestChild },
+		{ path: '/tasks/vuex', component: tasksTestVuex },
 		/* users */
 		{ path: '/users/test', component: usersTest },
 		{ path: '/users/login', component: usersLogin },

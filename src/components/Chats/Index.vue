@@ -1,7 +1,7 @@
 <template>
 <div class="row">
     <div class="col-sm-3">
-        <ChatLeftArea />
+        <ChatLeftArea></ChatLeftArea>
     </div>
     <div class="col-sm-9">
         <FlashMessage></FlashMessage>
@@ -95,7 +95,7 @@
 <script>
 import {Mixin} from '../../mixin'
 import axios from 'axios'
-import ChatLeftArea from '../../components/Layouts/ChatLeftArea'
+import ChatLeftArea from '../../components/Element/ChatLeftArea'
 import FlashMessage from '../../components/Layouts/FlashMessage'
 
 //
@@ -123,8 +123,9 @@ console.log( "uid=" + this.user_id )
                 'user_id': this.user_id,
             }; 
             axios.post(url, item).then(res =>  {
-                this.chats = res.data
-//console.log( this.chats )
+                this.chats = res.data.chat_items
+                this.set_exStorage(this.sysConst.KEY_CHAT_JOIN_ITEMS, res.data.join_chats )
+//console.log( res.data )
             })            
         },
         delete_member: function(chat_id){

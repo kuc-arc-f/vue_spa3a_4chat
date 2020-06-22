@@ -167,7 +167,7 @@
 import {Mixin} from '../../mixin'
 import axios from 'axios'
 import $ from 'jquery'
-import ChatLeftArea from '../../components/Layouts/ChatLeftArea'
+import ChatLeftArea from '../../components/Element/ChatLeftArea'
 import FlashMessage from '../../components/Layouts/FlashMessage'
 
 //init
@@ -213,11 +213,12 @@ console.log( "uid=" + this.user_id )
             var post_url = this.sysConst.URL_BASE +'/api/cross_chats/update_token'
             axios.post(url , item ).then(res => {
                 var data = res.data;
-//console.log(res.data.chat_posts );
+//console.log(res.data.join_chats );
                 this.tasks = this.convert_post_data( res.data.chat_posts )
                 this.chat = res.data.chat; 
                 this.CHAT_MEMBER_ID = data.chat_member.id
                 this.CHAT_MEMBERS = data.chat_members;
+                this.set_exStorage(this.sysConst.KEY_CHAT_JOIN_ITEMS, res.data.join_chats )
                 window.fcm_get_token(this.messaging, this.CHAT_MEMBER_ID, post_url);
                 window.fcm_onMessage(this.messaging,  this.CHAT_MEMBER_ID )
                 window.set_time_text();

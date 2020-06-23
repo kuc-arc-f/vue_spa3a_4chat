@@ -11,8 +11,10 @@
 		</div>
 		<div class="menu_join_chat" style="margin-top: 20px;">Join Chat
 		</div>  
+        <!--
         <p class="p_load_messages">Loading , join chat items ...
         </p>     
+        -->
         <div class="left_chats_wrap" style="padding-top:10px;">
             <div v-for="chat in chats" v-bind:key="chat.id">
                 <p class="li_join_chat">
@@ -43,35 +45,26 @@
 <script>
 import {Mixin} from '../../mixin'
 // import axios from 'axios'
-import $ from 'jquery'
+//import $ from 'jquery'
 
 //
 export default {
     mixins:[Mixin],
-//    props: ['join_chats' ],
     created () {
-        this.check_userState(this.sysConst.STORAGE_KEY_userData, this)
-        this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
-console.log( "uid=" + this.user_id )        
-//console.log( "c-len="+ this.join_chats.length  )
-        this.getTasks()
+//        this.check_userState(this.sysConst.STORAGE_KEY_userData, this)
+//        this.user_id = this.get_userId(this.sysConst.STORAGE_KEY_userData )
+//console.log( "uid=" + this.user_id )        
     },
     data () {
         return {
-            user_id : 0,
-            chats: [],
         }
     },
+    computed: {
+        chats(){
+            return this.$store.getters.chat_join_items;
+        }
+    },     
     methods: {
-        getTasks(){
-            var self = this
-            setTimeout(function () {
-                self.chats = self.get_exStorage( self.sysConst.KEY_CHAT_JOIN_ITEMS )
-                $('.p_load_messages').css('display','none');
-// console.log(  self.chats )
-                self.remove_exStorage( self.sysConst.KEY_CHAT_JOIN_ITEMS )
-            }, 3000)
-       },
         proc_next: function(id){
             this.set_exStorage(this.sysConst.KEY_NEXT_ACTION , '/chats/show/' + id )
             window.location.href = this.sysConst.HTTP_URL

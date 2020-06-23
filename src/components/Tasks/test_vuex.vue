@@ -1,71 +1,58 @@
 <template>
     <div>
-        <h1>Tasks- testChild:</h1>
-        <hr />
-        <!--
-        test : {{ message }}
-            -->
+        <h1>Tasks- test_vuex.vue:</h1>
         <hr />
         <p>{{ count }}</p>
         <p>
             <button @click="increment">+</button>
+            <!--
             <button @click="decrement">-</button>
+            -->
         </p>        
         <hr />
-        <TestTimerChild></TestTimerChild>
+        <TestChild_2 />
 
     </div>
 </template>
 
+<!-- -->
 <script>
-//import axios from 'axios'
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import axios from 'axios'
 import {Mixin} from '../../mixin'
-import TestTimerChild from '../../components/Element/TestTimerChild'
+import TestChild_2 from '../../components/Element/TestChild_2'
 
-Vue.use(Vuex)
-//
-const store = new Vuex.Store({
-    state: {
-        count: 0
-    },
-    mutations: {
-        increment: state => state.count++,
-        decrement: state => state.count--
-    }
-})
 //
 export default {
     mixins:[Mixin],
-    components: { TestTimerChild },
+    components: { TestChild_2 },
     created() {
-//        this.getTasks()
-//console.log( this.sysConst.URL_BASE )
+        this.updateTask()
     },
     computed: {
         count () {
-            return store.state.count
-        }
+            return this.$store.state.count
+        },
+        getTasks(){
+            return this.$store.getters.getTasks;
+        }        
     },    
     data() {
         return {
-            user : [],
             message : "data: Hello-TestChild-123",
-            child_data : "hoge",
-            items : [],
         }
     },
     methods: {
-        getTasks(){
-        },
         increment () {
-            store.commit('increment')
+            this.$store.commit("increment");
         },
-        decrement () {
-            store.commit('decrement')
-        }        
+        updateTask() {
+            var url = this.sysConst.URL_BASE +'/api/test_tasks'
+//console.log(url)
+            axios.get(url).then(res =>  {
+                this.tasks = res.data
+                this.$store.commit('setTasks',  {'tasks' : this.tasks }  )
+            })                        
+        },       
     }
 }
 </script>

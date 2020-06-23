@@ -124,7 +124,9 @@ console.log( "uid=" + this.user_id )
             }; 
             axios.post(url, item).then(res =>  {
                 this.chats = res.data.chat_items
-                this.set_exStorage(this.sysConst.KEY_CHAT_JOIN_ITEMS, res.data.join_chats )
+                this.$store.commit('set_chatJoinItems',
+                    {'chat_join_items' : res.data.join_chats }  
+                )
 //console.log( res.data )
             })            
         },

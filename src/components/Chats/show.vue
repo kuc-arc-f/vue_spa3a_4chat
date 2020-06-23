@@ -229,7 +229,9 @@ export default {
                 this.chat = res.data.chat; 
                 this.CHAT_MEMBER_ID = data.chat_member.id
                 this.CHAT_MEMBERS = data.chat_members;
-                this.set_exStorage(this.sysConst.KEY_CHAT_JOIN_ITEMS, res.data.join_chats )
+                this.$store.commit('set_chatJoinItems',
+                    {'chat_join_items' : res.data.join_chats }  
+                )                
                 window.fcm_get_token(this.messaging, this.CHAT_MEMBER_ID, post_url);
                 window.fcm_onMessage(this.messaging,  this.CHAT_MEMBER_ID )
                 window.set_time_text();

@@ -5,8 +5,20 @@
     </div>
     <div class="col-sm-9">
         <FlashMessage></FlashMessage>
-        <router-link :to="'/chats/new/'" class="btn btn-primary mt-2">Create
-        </router-link>
+        <div class="row" >
+            <div class="col-sm-6 pt-2">
+                <input id="chat-name" placeholder="name" type="text"
+                v-model="search_name" class="form-control search_key" style="margin-right: 10px;">
+                <button v-on:click="search_chat" 
+                    class="btn btn-outline-primary btn-sm serach_button">Search
+                </button>
+            </div>
+            <div class="col-sm-6" style="text-align: center;">
+                <router-link :to="'/chats/new/'" class="btn btn-primary mt-2">Create
+                </router-link>                
+            </div>
+        </div>
+
         <table class="table table-striped chat-table mt-2">
             <thead>
                 <th>Name</th>
@@ -112,10 +124,22 @@ console.log( "uid=" + this.user_id )
         return {
             user_id : 0,
             chats: [],
-            database : null
+            search_name : '',
         }
     },
     methods: {
+        search_chat: function(){
+            var url = this.sysConst.URL_BASE +'/api/cross_chats/search_chat'
+// console.log(url)
+            var item = {
+                'user_id': this.user_id,
+                'search_name' : this.search_name,
+            }; 
+            axios.post(url, item).then(res =>  {
+                this.chats = res.data.chat_items
+//console.log( res.data )
+            })             
+        },
         getTasks () {
             var url = this.sysConst.URL_BASE +'/api/cross_chats/get_chats'
 // console.log(url)

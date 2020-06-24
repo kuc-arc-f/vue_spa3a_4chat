@@ -11,13 +11,18 @@
                     <h3>{{ chat.name }} </h3>
                     <p class="mb-2">ID : {{ chat.id }} </p>
                 </div>
-                <div class="col-sm-3 pt-2" style="text-align: center; ">
+                <div class="col-sm-2 pt-2" style="text-align: center; ">
                     <a href="" v-on:click="move_show(chat_id);"
                         class="btn btn-outline-primary">
                         <i class="fas fa-redo-alt"></i> Load
                     </a>							
                 </div>
-                <div class="col-sm-3 pt-2">
+                <div class="col-sm-4 pt-2">
+                    <router-link :to="'/chats/info/' + chat_id"
+                        class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-info-circle"></i> Info
+                    </router-link>                    
+                    &nbsp;&nbsp;
                     <a v-bind:href="url_csv" class="btn btn-outline-primary btn-sm">
                      CSV出力
                     </a>
@@ -71,8 +76,14 @@
                         </div>
                     </div>
                     <div class="col_body">
-                        <p class="li_p_box mb-0" v-html="task.body">
-                        </p>							 
+                        <p class="li_p_box mb-0" > 
+                            <span v-html="task.body"></span>
+                        </p>						
+                        <div class="body_expand_btn_wrap" >
+                            <span style="color: #999;">
+                                <i class="fas fa-external-link-alt"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </li>                
@@ -153,9 +164,17 @@
     padding : 0px 8px;
     width : 180px;
 }
+.post_item .col_body{
+    padding : 8px;
+}
+.post_item .body_expand_btn_wrap{
+    text-align: right;
+}
+/*  
 .li_p_box{
     padding : 10px;
 }
+*/
 .time_box{
     margin-left : 52px;
     padding: 8px;
@@ -224,9 +243,16 @@ export default {
             var post_url = this.sysConst.URL_BASE +'/api/cross_chats/update_token'
             axios.post(url , item ).then(res => {
                 var data = res.data;
-//console.log(res.data.join_chats );
                 this.tasks = this.convert_post_data( res.data.chat_posts )
                 this.chat = res.data.chat; 
+                if(data.chat_member == null){
+//                    alert("chat_member= null")
+                    var arr=[ {message : 'Error, not join this chat'} ]
+                    this.set_exStorage( this.sysConst.STORAGE_KEY_flash, arr )                
+                    this.$router.push('/chats')
+                }
+console.log( data.chat_member);
+
                 this.CHAT_MEMBER_ID = data.chat_member.id
                 this.CHAT_MEMBERS = data.chat_members;
                 this.$store.commit('set_chatJoinItems',
@@ -292,7 +318,6 @@ console.log(res.data );
 //console.log( items  )
                 var new_items = this.convert_post_data( items )
                 this.tasks  = new_items;
-//                this.timer_start();
             })            
         },
 		count: function() {

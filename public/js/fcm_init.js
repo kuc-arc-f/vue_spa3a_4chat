@@ -31,7 +31,8 @@ function recv_pushMessage(title, body){
  * Send POST
  *********************************************/    
 function fcm_send(send_title, send_body, IID_TOKEN, FCM_SERVER_KEY){
-
+// console.log("IID_TOKEN=" + IID_TOKEN);
+    if(IID_TOKEN == null ){ return; }
     if(IID_TOKEN.length < 1){ return; }
     var key = FCM_SERVER_KEY;
     var to = IID_TOKEN;
@@ -41,7 +42,6 @@ function fcm_send(send_title, send_body, IID_TOKEN, FCM_SERVER_KEY){
         'icon': 'firebase-logo.png',
         'click_action': 'http://localhost'
     };
-// console.log(notification);
     fetch('https://fcm.googleapis.com/fcm/send', {
     'method': 'POST',
     'headers': {

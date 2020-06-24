@@ -30,6 +30,11 @@
                         <p class="p_tbl_chat_name mb-0">
                             <span v-if="chat.valid_join">
                                 <a href="" v-on:click="proc_next(chat.id);">{{ chat.name }}
+                                    &nbsp;&nbsp;
+                                    <span style="font-size: 1.0rem; ">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </span>
+                                    
                                 </a>                                                      
                             </span>
                             <span v-else>{{ chat.name }}
@@ -37,16 +42,17 @@
                         </p> 
                         <span>
                             ID : {{ chat.id }}
-                            &nbsp;&nbsp;
+                            &nbsp;&nbsp; 
+                            <!-- btn-outline-primary -->
                             <router-link :to="'/chats/info/' + chat.id"
-                                class="btn btn-outline-primary btn-sm">
+                                class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-info-circle"></i> Info
                             </router-link>                                
                         </span>
                         <span v-if="chat.user_id==user_id">
                             &nbsp;&nbsp;
                             <router-link :to="'/chats/edit/' + chat.id"
-                                class="btn btn-outline-primary btn-sm">Edit
+                                class="btn btn-outline-secondary btn-sm">Edit
                             </router-link>                                
                         </span>
                     </td>

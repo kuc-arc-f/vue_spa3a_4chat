@@ -3,13 +3,15 @@
         <router-link :to="'/chats'" class="btn btn-outline-primary mt-2">Back
         </router-link>
         <hr class="mt-2 mb-2" />        
-        <h3>name : {{ item.name }}</h3>
-        contennt:
+        <h3>Name : {{ item.name }}</h3>
+        ID : {{ item.id }} <br />
+        Contennt:
         <div v-text="item.content"></div>
         <p class="mt-2">
         Create : {{ item.created_at }}
         </p>
         <hr />
+        <br />
         <h3>Members:</h3>
         <table class="table table-striped task-table">
 			<thead>
